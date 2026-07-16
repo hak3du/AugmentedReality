@@ -1,149 +1,109 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-    <meta charset="UTF-8">
-    <title>Portfolio AR</title>
+  <meta charset="UTF-8">
+  <title>Portfolio AR</title>
 
-    <!-- Updated A-Frame version -->
-    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-    <script src="https://raw.githack.com/donmccurdy/aframe-extras/master/dist/aframe-extras.loaders.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/studio-backend/master/src/modules/marker/tools/gesture-detector.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/studio-backend/master/src/modules/marker/tools/gesture-handler.js"></script>
+  <!-- Latest A-Frame -->
+  <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+  <!-- AR.js -->
+  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+  <!-- Extras -->
+  <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.5.4/dist/aframe-extras.min.js"></script>
 
-    <style>
-        html,
-        body {
-            margin: 0;
-            overflow: hidden;
-            font-family: Arial, Helvetica, sans-serif;
-        }
-
-        #videoOverlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, .95);
-            z-index: 9999;
-        }
-
-        #youtubeFrame {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        #closeVideo {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 10000;
-            background: white;
-            border: none;
-            padding: 12px 18px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-        }
-    </style>
+  <style>
+    html, body { margin:0; overflow:hidden; font-family:sans-serif; }
+    #videoOverlay {
+      display:none; position:fixed; inset:0;
+      background:rgba(0,0,0,.95); z-index:9999;
+    }
+    #youtubeFrame { width:100%; height:100%; border:none; }
+    #closeVideo {
+      position:absolute; top:20px; right:20px;
+      background:white; border:none; padding:12px 18px;
+      border-radius:8px; cursor:pointer; font-size:16px;
+    }
+  </style>
 </head>
-
 <body>
 
 <div id="videoOverlay">
-    <button id="closeVideo">Close</button>
-    <iframe
-        id="youtubeFrame"
-        src=""
-        allow="autoplay; fullscreen"
-        allowfullscreen>
-    </iframe>
+  <button id="closeVideo">Close</button>
+  <iframe id="youtubeFrame" src="" allow="autoplay; fullscreen" allowfullscreen></iframe>
 </div>
 
 <a-scene
-    embedded
-    gesture-detector
-    vr-mode-ui="enabled:false;"
-    loading-screen="enabled:false;"
-    renderer="logarithmicDepthBuffer:true;"
-    arjs="trackingMethod:best; sourceType:webcam; debugUIEnabled:false;">
+  embedded
+  arjs="trackingMethod:best; sourceType:webcam; debugUIEnabled:false;"
+  vr-mode-ui="enabled:false"
+  loading-screen="enabled:false">
 
-    <a-assets>
-        <a-asset-item id="audiAsset" src="assets/audi.glb"></a-asset-item>
-    </a-assets>
+  <a-assets>
+    <a-asset-item id="audiAsset" src="assets/audi.glb"></a-asset-item>
+  </a-assets>
 
-    <a-marker
-        id="markerA"
-        type="pattern"
-        preset="custom"
-        url="assets/marker.patt"
-        raycaster="objects:.clickable"
-        emitevents="true"
-        cursor="rayOrigin:mouse; fuse:false;">
+  <a-marker id="markerA" type="pattern" url="assets/marker.patt">
+    <!-- Floating Menu -->
+    <a-entity id="menu" visible="false">
+      <a-plane width="2" height="1.2" color="#111" opacity="0.85" position="0 0.8 0"></a-plane>
+      <a-text value="Portfolio AR" color="white" align="center" width="3" position="0 1.2 .01"></a-text>
 
-        <!-- MENU -->
-        <a-entity id="menu" visible="false">
-            <a-plane width="2" height="1.2" color="#111" opacity="0.85" position="0 0.8 0"></a-plane>
-            <a-text value="Portfolio AR" color="white" align="center" width="3" position="0 1.2 .01"></a-text>
+      <!-- Video Button -->
+      <a-plane id="videoButton" class="clickable" width="1.4" height=".28" color="#2563eb" position="0 .95 .02"></a-plane>
+      <a-text value="▶ Watch Video" align="center" width="3" color="white" position="0 .95 .03"></a-text>
 
-            <!-- VIDEO -->
-            <a-plane id="videoButton" class="clickable" width="1.4" height=".28" color="#2563eb" position="0 .95 .02"></a-plane>
-            <a-text value="▶ Watch Video" align="center" width="3" color="white" position="0 .95 .03"></a-text>
+      <!-- Model Button -->
+      <a-plane id="modelButton" class="clickable" width="1.4" height=".28" color="#16a34a" position="0 .55 .02"></a-plane>
+      <a-text value="🚗 Show Audi" align="center" width="3" color="white" position="0 .55 .03"></a-text>
+    </a-entity>
 
-            <!-- MODEL -->
-            <a-plane id="modelButton" class="clickable" width="1.4" height=".28" color="#16a34a" position="0 .55 .02"></a-plane>
-            <a-text value="🚗 Show Audi" align="center" width="3" color="white" position="0 .55 .03"></a-text>
-        </a-entity>
+    <!-- Audi Model -->
+    <a-entity id="audiModel"
+              visible="false"
+              gltf-model="#audiAsset"
+              scale="0.35 0.35 0.35"
+              position="0 -0.25 0"
+              rotation="0 180 0">
+    </a-entity>
+  </a-marker>
 
-        <!-- MODEL -->
-        <a-entity
-            id="audiModel"
-            visible="false"
-            gltf-model="#audiAsset"
-            scale="0.35 0.35 0.35"
-            position="0 -0.25 0"
-            rotation="0 180 0"
-            animation-mixer
-            gesture-handler>
-        </a-entity>
-    </a-marker>
-
-    <a-entity camera></a-entity>
+  <a-entity camera></a-entity>
 </a-scene>
 
 <script>
-const marker = document.querySelector("#markerA");
-const menu = document.querySelector("#menu");
-const model = document.querySelector("#audiModel");
-const overlay = document.getElementById("videoOverlay");
-const frame = document.getElementById("youtubeFrame");
+const sceneEl = document.querySelector("a-scene");
+sceneEl.addEventListener("loaded", () => {
+  const marker = document.querySelector("#markerA");
+  const menu   = document.querySelector("#menu");
+  const model  = document.querySelector("#audiModel");
+  const overlay= document.getElementById("videoOverlay");
+  const frame  = document.getElementById("youtubeFrame");
 
-marker.addEventListener("markerFound", () => {
+  marker.addEventListener("markerFound", () => {
     menu.setAttribute("visible", true);
-});
+  });
 
-marker.addEventListener("markerLost", () => {
+  marker.addEventListener("markerLost", () => {
     menu.setAttribute("visible", false);
     model.setAttribute("visible", false);
     overlay.style.display = "none";
     frame.src = "";
-});
+  });
 
-document.querySelector("#videoButton").addEventListener("click", () => {
+  document.getElementById("videoButton").addEventListener("click", () => {
     overlay.style.display = "block";
     frame.src = "https://www.youtube.com/embed/YOUR_VIDEO_ID?autoplay=1";
-});
+  });
 
-document.querySelector("#modelButton").addEventListener("click", () => {
+  document.getElementById("modelButton").addEventListener("click", () => {
     menu.setAttribute("visible", false);
     model.setAttribute("visible", true);
-});
+  });
 
-document.getElementById("closeVideo").addEventListener("click", () => {
+  document.getElementById("closeVideo").addEventListener("click", () => {
     overlay.style.display = "none";
     frame.src = "";
+  });
 });
 </script>
 
