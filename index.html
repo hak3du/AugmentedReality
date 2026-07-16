@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Portfolio AR</title>
+  <title>Portfolio AR Debug</title>
 
   <!-- Latest A-Frame -->
   <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
@@ -13,38 +13,6 @@
 
   <style>
     html, body { margin:0; height:100%; overflow:hidden; font-family:sans-serif; }
-
-    #uiOverlay {
-      position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
-      display:none; z-index:9999;
-      background:rgba(17,17,17,0.85); padding:12px 20px; border-radius:12px;
-      text-align:center; color:white;
-    }
-    #uiOverlay button {
-      display:block; width:100%; margin:8px 0; padding:12px;
-      font-size:16px; border:none; border-radius:8px; cursor:pointer;
-    }
-
-    #videoOverlay {
-      display:none;
-      position:fixed;
-      left:50%; top:50%;
-      transform:translate(-50%,-50%);
-      width:720px; max-width:90vw;
-      aspect-ratio:16/9;
-      background:#111;
-      border-radius:18px;
-      overflow:hidden;
-      box-shadow:0 20px 60px rgba(0,0,0,.45);
-      z-index:10000;
-    }
-    #youtubeFrame { width:100%; height:100%; border:none; }
-    #closeVideo {
-      position:absolute; top:10px; right:10px;
-      background:white; border:none; border-radius:8px;
-      padding:8px 14px; cursor:pointer;
-    }
-
     #debugPanel {
       position:fixed; top:10px; left:10px;
       background:rgba(0,0,0,0.7); color:#0f0;
@@ -55,24 +23,6 @@
 </head>
 <body>
 
-<div id="uiOverlay">
-  <div>Portfolio AR</div>
-  <button id="videoButton">▶ Watch Introduction</button>
-  <button id="modelButton">🚗 Show Audi</button>
-  <button id="closeUI">❌ Close</button>
-</div>
-
-<div id="videoOverlay">
-  <button id="closeVideo">Close</button>
-  <iframe
-    id="youtubeFrame"
-    allow="autoplay; encrypted-media; picture-in-picture"
-    allowfullscreen
-    loading="lazy"
-    referrerpolicy="strict-origin-when-cross-origin">
-  </iframe>
-</div>
-
 <div id="debugPanel">❌ Marker\n❌ GLB\n❌ Visible</div>
 
 <a-scene
@@ -82,117 +32,76 @@
   loading-screen="enabled:false"
   arjs="trackingMethod:best; sourceType:webcam; debugUIEnabled:false;">
 
-  <a-assets>
-    <a-asset-item id="audiAsset" src="assets/audi.glb"></a-asset-item>
-  </a-assets>
-
+  <!-- Use official test model instead of audi.glb -->
   <a-marker id="markerA" type="pattern" url="assets/marker.patt">
-    <!-- Debug cube -->
-    <a-box color="red" depth="0.1" width="0.1" height="0.1" position="0 0 0"></a-box>
-
-    <!-- Audi model -->
     <a-entity id="audiModel"
               visible="false"
-              gltf-model="#audiAsset"
+              gltf-model="https://cdn.aframe.io/test-models/models/box/Box.gltf"
               position="0 0 0"
-              rotation="0 0 0"
-              scale="10 10 10">
+              scale="1 1 1">
     </a-entity>
+    <!-- Debug cube -->
+    <a-box color="red" depth="0.1" width="0.1" height="0.1" position="0 0 0"></a-box>
   </a-marker>
 
   <a-entity camera></a-entity>
 </a-scene>
 
 <script>
-const sceneEl = document.querySelector("a-scene");
-sceneEl.addEventListener("loaded", () => {
-  const marker = document.querySelector("#markerA");
-  const model  = document.querySelector("#audiModel");
-  const ui     = document.getElementById("uiOverlay");
-  const overlay= document.getElementById("videoOverlay");
-  const frame  = document.getElementById("youtubeFrame");
-  const debug  = document.getElementById("debugPanel");
+const marker = document.querySelector("#markerA");
+const model  = document.querySelector("#audiModel");
+const debug  = document.getElementById("debugPanel");
 
-  let lostTimeout;
+let lostTimeout;
 
-  function updateDebug(status) {
-    debug.textContent = status;
-  }
+function updateDebug(status) {
+  debug.textContent = status;
+}
 
-  marker.addEventListener("markerFound", () => {
-    clearTimeout(lostTimeout);
-    ui.style.display = "block";
-    updateDebug("🟢 Marker Found\n❌ GLB\n❌ Visible");
-  });
+marker.addEventListener("markerFound", () => {
+  clearTimeout(lostTimeout);
+  updateDebug("🟢 Marker Found\n❌ GLB\n❌ Visible");
+});
 
-  marker.addEventListener("markerLost", () => {
-    lostTimeout = setTimeout(() => {
-      ui.style.display = "none";
-      model.setAttribute("visible", false);
-      overlay.style.display = "none";
-      frame.removeAttribute("src");
-      updateDebug("❌ Marker Lost");
-    }, 800);
-  });
-
-  document.getElementById("videoButton").onclick = () => {
-    ui.style.display = "none";
-    overlay.style.display = "block";
-    frame.src = "https://www.youtube.com/embed/YOUR_VIDEO_ID?autoplay=1";
-  };
-
-  document.getElementById("modelButton").onclick = () => {
-    ui.style.display = "none";
-    overlay.style.display = "none";
-    frame.removeAttribute("src");
-    model.setAttribute("visible", true);
-    model.object3D.visible = true;
-  };
-
-  document.getElementById("closeUI").onclick = () => {
-    ui.style.display = "none";
+marker.addEventListener("markerLost", () => {
+  lostTimeout = setTimeout(() => {
     model.setAttribute("visible", false);
-  };
+    updateDebug("❌ Marker Lost");
+  }, 800);
+});
 
-  document.getElementById("closeVideo").onclick = () => {
-    overlay.style.display = "none";
-    frame.removeAttribute("src");
-  };
+model.addEventListener("model-loaded", () => {
+  const obj = model.getObject3D("mesh");
+  if (obj) {
+    // Force visibility
+    obj.traverse((node) => {
+      if (node.isMesh) {
+        node.visible = true;
+        node.material.side = THREE.DoubleSide;
+        node.frustumCulled = false;
+        node.geometry.computeBoundingBox();
+        console.log(node.name, node.geometry.boundingBox);
+      }
+    });
 
-  // Debug model load
-  model.addEventListener("model-loaded", () => {
-    const obj = model.getObject3D("mesh");
-    if (obj) {
-      // Force visibility
-      obj.traverse((node) => {
-        if (node.isMesh) {
-          node.visible = true;
-          node.material.side = THREE.DoubleSide;
-          node.frustumCulled = false;
-          node.geometry.computeBoundingBox();
-          console.log(node.name, node.geometry.boundingBox);
-        }
-      });
+    // Center the model
+    const box = new THREE.Box3().setFromObject(obj);
+    const center = new THREE.Vector3();
+    box.getCenter(center);
+    obj.position.sub(center);
 
-      // Center the model
-      const box = new THREE.Box3().setFromObject(obj);
-      const center = new THREE.Vector3();
-      box.getCenter(center);
-      obj.position.sub(center);
+    const size = new THREE.Vector3();
+    box.getSize(size);
 
-      const size = new THREE.Vector3();
-      box.getSize(size);
-
-      updateDebug(
+    updateDebug(
 `🟢 Marker Found
 🟢 GLB Loaded
 Visible = ${model.getAttribute("visible")}
 Scale: ${model.getAttribute("scale")}
 Position: ${model.getAttribute("position")}
 Bounds: ${size.x.toFixed(2)} × ${size.y.toFixed(2)} × ${size.z.toFixed(2)}`
-      );
-    }
-  });
+    );
+  }
 });
 </script>
 
