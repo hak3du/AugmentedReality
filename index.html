@@ -1,147 +1,382 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
+
 <head>
-    <meta charset="utf-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
-    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-    <script src="https://raw.githack.com/donmccurdy/aframe-extras/master/dist/aframe-extras.loaders.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/studio-backend/master/src/modules/marker/tools/gesture-detector.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/studio-backend/master/src/modules/marker/tools/gesture-handler.js"></script>
+<title>Portfolio AR Experience</title>
 
-    <style>
-        body{
-            margin:0;
-            font-family:Arial,Helvetica,sans-serif;
-            background:#111;
-            color:white;
-        }
+<script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+<script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+<script src="https://raw.githack.com/donmccurdy/aframe-extras/master/dist/aframe-extras.loaders.min.js"></script>
+<script src="https://raw.githack.com/AR-js-org/studio-backend/master/src/modules/marker/tools/gesture-detector.js"></script>
+<script src="https://raw.githack.com/AR-js-org/studio-backend/master/src/modules/marker/tools/gesture-handler.js"></script>
 
-        #controls{
-            position:fixed;
-            top:20px;
-            left:50%;
-            transform:translateX(-50%);
-            z-index:9999;
-            display:flex;
-            gap:12px;
-        }
+<style>
 
-        button{
-            padding:12px 22px;
-            border:none;
-            border-radius:10px;
-            cursor:pointer;
-            background:#222;
-            color:white;
-            font-size:15px;
-        }
+html,body{
+margin:0;
+overflow:hidden;
+background:#000;
+font-family:Arial,Helvetica,sans-serif;
+}
 
-        button:hover{
-            background:#444;
-        }
+#videoPage{
 
-        #videoContainer{
-            display:block;
-            width:100vw;
-            height:100vh;
-        }
+position:fixed;
 
-        #videoContainer iframe{
-            width:100%;
-            height:100%;
-            border:none;
-        }
+top:0;
+left:0;
 
-        #arContainer{
-            display:none;
-            width:100vw;
-            height:100vh;
-        }
-    </style>
+width:100%;
+height:100%;
+
+background:#000;
+
+display:none;
+
+z-index:100;
+
+}
+
+#videoPage iframe{
+
+width:100%;
+height:100%;
+border:none;
+
+}
+
+#backButton{
+
+position:absolute;
+
+top:25px;
+left:25px;
+
+z-index:200;
+
+padding:14px 24px;
+
+border:none;
+
+border-radius:10px;
+
+background:#111;
+
+color:white;
+
+cursor:pointer;
+
+font-size:16px;
+
+}
+
+#overlay{
+
+position:absolute;
+
+top:25px;
+
+left:50%;
+
+transform:translateX(-50%);
+
+background:rgba(0,0,0,.65);
+
+padding:12px 24px;
+
+border-radius:12px;
+
+color:white;
+
+z-index:10;
+
+transition:.35s;
+
+}
+
+</style>
+
 </head>
 
 <body>
 
-<div id="controls">
-    <button onclick="showVideo()">🎥 Watch Demo</button>
-    <button onclick="showAR()">🥽 Launch AR</button>
-</div>
+<div id="overlay">
 
-<!-- VIDEO -->
-
-<div id="videoContainer">
-
-    <!-- Replace VIDEO_ID with your own -->
-    <iframe
-        src="https://www.youtube.com/embed/VIDEO_ID"
-        allowfullscreen>
-    </iframe>
+Scan the marker to begin
 
 </div>
 
-<!-- AR -->
+<div id="videoPage">
 
-<div id="arContainer">
+<button id="backButton">
+
+← Back to AR
+
+</button>
+
+<iframe
+
+id="youtube"
+
+src="https://www.youtube.com/embed/YOUR_VIDEO_ID"
+
+allowfullscreen>
+
+</iframe>
+
+</div>
 
 <a-scene
-    vr-mode-ui="enabled:false;"
-    loading-screen="enabled:false;"
-    renderer="logarithmicDepthBuffer:true;"
-    arjs="trackingMethod:best; sourceType:webcam; debugUIEnabled:false;"
-    embedded
-    gesture-detector>
 
-    <a-assets>
+id="scene"
 
-        <a-asset-item
-            id="animated-asset"
-            src="assets/asset.glb">
-        </a-asset-item>
+embedded
 
-    </a-assets>
+gesture-detector
 
-    <a-marker
-        type="pattern"
-        preset="custom"
-        url="assets/marker.patt"
-        raycaster="objects:.clickable"
-        emitevents="true"
-        cursor="fuse:false; rayOrigin:mouse;">
+vr-mode-ui="enabled:false"
 
-        <a-entity
-            scale="0.4 0.4 0.4"
-            animation-mixer
-            gltf-model="#animated-asset"
-            class="clickable"
-            gesture-handler>
-        </a-entity>
+loading-screen="enabled:false"
 
-    </a-marker>
+renderer="logarithmicDepthBuffer:true"
 
-    <a-entity camera></a-entity>
+arjs="trackingMethod:best; sourceType:webcam; debugUIEnabled:false;">
+
+<a-assets>
+
+<a-asset-item
+
+id="asset"
+
+src="assets/asset.glb">
+
+</a-asset-item>
+
+</a-assets>
+
+<a-marker
+
+id="marker"
+
+type="pattern"
+
+preset="custom"
+
+url="assets/marker.patt"
+
+cursor="rayOrigin:mouse"
+
+raycaster="objects:.clickable"
+
+emitevents="true">
+
+<!-- Title -->
+
+<a-text
+
+id="title"
+
+value="Portfolio Experience"
+
+align="center"
+
+position="0 1.1 0"
+
+scale=".6 .6 .6"
+
+color="#FFFFFF"
+
+visible="false">
+
+</a-text>
+
+<!-- Video Button -->
+
+<a-plane
+
+id="videoButton"
+
+class="clickable"
+
+position="-0.75 .55 0"
+
+width="1.1"
+
+height=".32"
+
+color="#2563EB"
+
+visible="false">
+
+</a-plane>
+
+<a-text
+
+id="videoLabel"
+
+value="Watch Demo"
+
+align="center"
+
+position="-0.75 .55 .01"
+
+scale=".45 .45 .45"
+
+color="white"
+
+visible="false">
+
+</a-text>
+
+<!-- Object Button -->
+
+<a-plane
+
+id="objectButton"
+
+class="clickable"
+
+position=".75 .55 0"
+
+width="1.1"
+
+height=".32"
+
+color="#059669"
+
+visible="false">
+
+</a-plane>
+
+<a-text
+
+id="objectLabel"
+
+value="View Object"
+
+align="center"
+
+position=".75 .55 .01"
+
+scale=".45 .45 .45"
+
+color="white"
+
+visible="false">
+
+</a-text>
+
+<!-- Model -->
+
+<a-entity
+
+id="model"
+
+visible="false"
+
+gltf-model="#asset"
+
+animation-mixer
+
+gesture-handler
+
+position="0 -.2 0"
+
+scale=".4 .4 .4">
+
+</a-entity>
+
+</a-marker>
+
+<a-entity camera></a-entity>
 
 </a-scene>
 
-</div>
-
 <script>
 
-function showVideo(){
+const marker=document.querySelector("#marker");
 
-    document.getElementById("videoContainer").style.display="block";
-    document.getElementById("arContainer").style.display="none";
+const overlay=document.querySelector("#overlay");
 
-}
+const model=document.querySelector("#model");
 
-function showAR(){
+const title=document.querySelector("#title");
 
-    document.getElementById("videoContainer").style.display="none";
-    document.getElementById("arContainer").style.display="block";
+const videoButton=document.querySelector("#videoButton");
 
-}
+const videoLabel=document.querySelector("#videoLabel");
+
+const objectButton=document.querySelector("#objectButton");
+
+const objectLabel=document.querySelector("#objectLabel");
+
+const scene=document.querySelector("#scene");
+
+const videoPage=document.querySelector("#videoPage");
+
+const backButton=document.querySelector("#backButton");
+
+marker.addEventListener("markerFound",()=>{
+
+overlay.innerHTML="Portfolio Detected";
+
+title.setAttribute("visible",true);
+
+videoButton.setAttribute("visible",true);
+
+videoLabel.setAttribute("visible",true);
+
+objectButton.setAttribute("visible",true);
+
+objectLabel.setAttribute("visible",true);
+
+});
+
+marker.addEventListener("markerLost",()=>{
+
+overlay.innerHTML="Scan the marker to begin";
+
+title.setAttribute("visible",false);
+
+videoButton.setAttribute("visible",false);
+
+videoLabel.setAttribute("visible",false);
+
+objectButton.setAttribute("visible",false);
+
+objectLabel.setAttribute("visible",false);
+
+model.setAttribute("visible",false);
+
+});
+
+objectButton.addEventListener("click",()=>{
+
+model.setAttribute("visible",true);
+
+});
+
+videoButton.addEventListener("click",()=>{
+
+scene.style.display="none";
+
+videoPage.style.display="block";
+
+});
+
+backButton.addEventListener("click",()=>{
+
+videoPage.style.display="none";
+
+scene.style.display="block";
+
+});
 
 </script>
 
 </body>
+
 </html>
