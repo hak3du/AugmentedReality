@@ -12,9 +12,7 @@
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.5.4/dist/aframe-extras.min.js"></script>
 
   <style>
-    html, body {
-      margin:0; height:100%; overflow:hidden; font-family:sans-serif;
-    }
+    html, body { margin:0; height:100%; overflow:hidden; font-family:sans-serif; }
 
     /* Fixed UI overlay */
     #uiOverlay {
@@ -42,9 +40,7 @@
       box-shadow:0 20px 60px rgba(0,0,0,.45);
       z-index:10000;
     }
-    #youtubeFrame {
-      width:100%; height:100%; border:none;
-    }
+    #youtubeFrame { width:100%; height:100%; border:none; }
     #closeVideo {
       position:absolute; top:10px; right:10px;
       background:white; border:none; border-radius:8px;
@@ -65,14 +61,21 @@
 <!-- Video overlay -->
 <div id="videoOverlay">
   <button id="closeVideo">Close</button>
-  <iframe id="youtubeFrame" src="" allow="autoplay; fullscreen" allowfullscreen></iframe>
+  <iframe
+    id="youtubeFrame"
+    allow="autoplay; encrypted-media; picture-in-picture"
+    allowfullscreen
+    loading="lazy"
+    referrerpolicy="strict-origin-when-cross-origin">
+  </iframe>
 </div>
 
 <a-scene
   embedded
-  arjs="trackingMethod:best; sourceType:webcam; debugUIEnabled:false;"
   vr-mode-ui="enabled:false"
-  loading-screen="enabled:false">
+  device-orientation-permission-ui="enabled:false"
+  loading-screen="enabled:false"
+  arjs="trackingMethod:best; sourceType:webcam; debugUIEnabled:false;">
 
   <a-assets>
     <a-asset-item id="audiAsset" src="assets/audi.glb"></a-asset-item>
@@ -83,9 +86,9 @@
     <a-entity id="audiModel"
               visible="false"
               gltf-model="#audiAsset"
-              position="0 0.3 0"
-              rotation="0 180 0"
-              scale="1 1 1">
+              position="0 0 0"
+              rotation="0 0 0"
+              scale="10 10 10">
     </a-entity>
   </a-marker>
 
@@ -113,18 +116,21 @@ sceneEl.addEventListener("loaded", () => {
       ui.style.display = "none";
       model.setAttribute("visible", false);
       overlay.style.display = "none";
-      frame.src = "";
+      frame.removeAttribute("src");
     }, 800);
   });
 
+  // Button handlers
   document.getElementById("videoButton").onclick = () => {
+    ui.style.display = "none";
     overlay.style.display = "block";
     frame.src = "https://www.youtube.com/embed/YOUR_VIDEO_ID?autoplay=1";
   };
 
   document.getElementById("modelButton").onclick = () => {
+    ui.style.display = "none";
     overlay.style.display = "none";
-    frame.src = "";
+    frame.removeAttribute("src");
     model.setAttribute("visible", true);
     model.object3D.visible = true;
   };
@@ -136,11 +142,22 @@ sceneEl.addEventListener("loaded", () => {
 
   document.getElementById("closeVideo").onclick = () => {
     overlay.style.display = "none";
-    frame.src = "";
+    frame.removeAttribute("src");
   };
 
+  // Debug model load
   model.addEventListener("model-loaded", () => {
     console.log("Audi loaded!");
+    console.log(model.object3D);
+
+    // Center the model automatically
+    const obj = model.getObject3D("mesh");
+    if (obj) {
+      const box = new THREE.Box3().setFromObject(obj);
+      const center = new THREE.Vector3();
+      box.getCenter(center);
+      obj.position.sub(center);
+    }
   });
 });
 </script>
