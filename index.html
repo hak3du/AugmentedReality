@@ -13,9 +13,21 @@
 
   <style>
     html, body { margin:0; height:100%; overflow:hidden; font-family:sans-serif; }
+
+    /* Fixed UI */
+    #uiOverlay {
+      position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+      display:none; z-index:9999;
+      background:rgba(17,17,17,0.85); padding:12px 20px; border-radius:12px;
+      text-align:center; color:white;
+    }
+    #uiOverlay button {
+      display:block; width:100%; margin:8px 0; padding:12px;
+      font-size:16px; border:none; border-radius:8px; cursor:pointer;
+    }
     #videoOverlay {
       display:none; position:fixed; inset:0;
-      background:rgba(0,0,0,.95); z-index:9999;
+      background:rgba(0,0,0,.95); z-index:10000;
     }
     #youtubeFrame { width:100%; height:100%; border:none; }
     #closeVideo {
@@ -27,7 +39,15 @@
 </head>
 <body>
 
-<!-- Overlay video player -->
+<!-- Fixed UI -->
+<div id="uiOverlay">
+  <div>Portfolio AR</div>
+  <button id="videoButton">▶ Watch Introduction</button>
+  <button id="modelButton">🚗 Show Audi</button>
+  <button id="closeUI">❌ Close</button>
+</div>
+
+<!-- Video Overlay -->
 <div id="videoOverlay">
   <button id="closeVideo">Close</button>
   <iframe id="youtubeFrame" src="" allow="autoplay; fullscreen" allowfullscreen></iframe>
@@ -43,23 +63,8 @@
     <a-asset-item id="audiAsset" src="assets/audi.glb"></a-asset-item>
   </a-assets>
 
-  <!-- Marker -->
+  <!-- Marker anchors only the model -->
   <a-marker id="markerA" type="pattern" url="assets/marker.patt">
-    <!-- Floating Menu -->
-    <a-entity id="menu" visible="false">
-      <a-plane width="2" height="1.2" color="#111" opacity="0.85" position="0 0.8 0"></a-plane>
-      <a-text value="Portfolio AR" color="white" align="center" width="3" position="0 1.2 .01"></a-text>
-
-      <!-- Video Button -->
-      <a-plane id="videoButton" class="clickable" width="1.4" height=".28" color="#2563eb" position="0 .95 .02"></a-plane>
-      <a-text value="▶ Watch Video" align="center" width="3" color="white" position="0 .95 .03"></a-text>
-
-      <!-- Model Button -->
-      <a-plane id="modelButton" class="clickable" width="1.4" height=".28" color="#16a34a" position="0 .55 .02"></a-plane>
-      <a-text value="🚗 Show Audi" align="center" width="3" color="white" position="0 .55 .03"></a-text>
-    </a-entity>
-
-    <!-- Audi Model -->
     <a-entity id="audiModel"
               visible="false"
               gltf-model="#audiAsset"
@@ -76,8 +81,8 @@
 const sceneEl = document.querySelector("a-scene");
 sceneEl.addEventListener("loaded", () => {
   const marker = document.querySelector("#markerA");
-  const menu   = document.querySelector("#menu");
   const model  = document.querySelector("#audiModel");
+  const ui     = document.getElementById("uiOverlay");
   const overlay= document.getElementById("videoOverlay");
   const frame  = document.getElementById("youtubeFrame");
 
@@ -85,13 +90,12 @@ sceneEl.addEventListener("loaded", () => {
 
   marker.addEventListener("markerFound", () => {
     clearTimeout(lostTimeout);
-    menu.setAttribute("visible", true);
+    ui.style.display = "block";
   });
 
   marker.addEventListener("markerLost", () => {
-    // Delay hiding to avoid flicker
     lostTimeout = setTimeout(() => {
-      menu.setAttribute("visible", false);
+      ui.style.display = "none";
       model.setAttribute("visible", false);
       overlay.style.display = "none";
       frame.src = "";
@@ -104,8 +108,12 @@ sceneEl.addEventListener("loaded", () => {
   });
 
   document.getElementById("modelButton").addEventListener("click", () => {
-    menu.setAttribute("visible", false);
     model.setAttribute("visible", true);
+  });
+
+  document.getElementById("closeUI").addEventListener("click", () => {
+    ui.style.display = "none";
+    model.setAttribute("visible", false);
   });
 
   document.getElementById("closeVideo").addEventListener("click", () => {
