@@ -12,7 +12,7 @@
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.5.4/dist/aframe-extras.min.js"></script>
 
   <style>
-    html, body { margin:0; overflow:hidden; font-family:sans-serif; }
+    html, body { margin:0; height:100%; overflow:hidden; font-family:sans-serif; }
     #videoOverlay {
       display:none; position:fixed; inset:0;
       background:rgba(0,0,0,.95); z-index:9999;
@@ -27,6 +27,7 @@
 </head>
 <body>
 
+<!-- Overlay video player -->
 <div id="videoOverlay">
   <button id="closeVideo">Close</button>
   <iframe id="youtubeFrame" src="" allow="autoplay; fullscreen" allowfullscreen></iframe>
@@ -42,6 +43,7 @@
     <a-asset-item id="audiAsset" src="assets/audi.glb"></a-asset-item>
   </a-assets>
 
+  <!-- Marker -->
   <a-marker id="markerA" type="pattern" url="assets/marker.patt">
     <!-- Floating Menu -->
     <a-entity id="menu" visible="false">
@@ -79,15 +81,21 @@ sceneEl.addEventListener("loaded", () => {
   const overlay= document.getElementById("videoOverlay");
   const frame  = document.getElementById("youtubeFrame");
 
+  let lostTimeout;
+
   marker.addEventListener("markerFound", () => {
+    clearTimeout(lostTimeout);
     menu.setAttribute("visible", true);
   });
 
   marker.addEventListener("markerLost", () => {
-    menu.setAttribute("visible", false);
-    model.setAttribute("visible", false);
-    overlay.style.display = "none";
-    frame.src = "";
+    // Delay hiding to avoid flicker
+    lostTimeout = setTimeout(() => {
+      menu.setAttribute("visible", false);
+      model.setAttribute("visible", false);
+      overlay.style.display = "none";
+      frame.src = "";
+    }, 800);
   });
 
   document.getElementById("videoButton").addEventListener("click", () => {
