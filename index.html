@@ -2,64 +2,31 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Audi GLB Debug Controls</title>
+  <title>The Genesis Sequence</title>
 
-  <!-- Stable A-Frame version -->
+  <!-- Stable A-Frame -->
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
   <!-- AR.js -->
   <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
 
   <style>
     html, body { margin:0; height:100%; overflow:hidden; }
-    #controls {
-      position:fixed; bottom:10px; left:10px;
-      background:rgba(0,0,0,0.7); color:white;
-      padding:10px; border-radius:8px; font-family:sans-serif;
-      z-index:9999;
-    }
-    #controls button {
-      margin:4px; padding:6px 10px; cursor:pointer;
-    }
   </style>
 </head>
 <body>
 
-<div id="controls">
-  <button onclick="setScale(0.001)">0.001</button>
-  <button onclick="setScale(0.01)">0.01</button>
-  <button onclick="setScale(0.1)">0.1</button>
-  <button onclick="setScale(1)">1</button>
-  <button onclick="setScale(5)">5</button>
-  <button onclick="setScale(10)">10</button>
-  <button onclick="rotateX(-90)">X -90</button>
-  <button onclick="rotateX(0)">X 0</button>
-  <button onclick="rotateX(90)">X 90</button>
-  <button onclick="toggleWireframe()">Wireframe</button>
-  <button onclick="raise()">Y +</button>
-  <button onclick="lower()">Y -</button>
-  <button onclick="nextConfig()">Next Config</button>
-</div>
-
 <a-scene
   embedded
-  vr-mode-ui="enabled:false"
-  device-orientation-permission-ui="enabled:false"
-  loading-screen="enabled:false"
   arjs="trackingMethod:best; sourceType:webcam; debugUIEnabled:false;">
 
-  <a-assets timeout="10000">
-    <a-asset-item id="audiAsset" src="assets/audi.glb"></a-asset-item>
-  </a-assets>
-
   <a-marker id="markerA" type="pattern" url="assets/marker.patt">
-    <a-box color="red" depth="0.1" width="0.1" height="0.1"></a-box>
-    <a-entity id="audiModel"
-              gltf-model="#audiAsset"
-              position="0 0 0"
-              scale="1 1 1"
-              rotation="0 0 0">
-    </a-entity>
-    <a-sphere radius="0.15" color="blue" position="0 0.3 0"></a-sphere>
+    <a-entity id="seed"></a-entity>
+    <a-entity id="particles"></a-entity>
+    <a-entity id="harmonics"></a-entity>
+    <a-entity id="connections"></a-entity>
+    <a-entity id="cube"></a-entity>
+    <a-entity id="portal"></a-entity>
+    <a-entity id="identity"></a-entity>
   </a-marker>
 
   <a-entity camera></a-entity>
@@ -68,84 +35,149 @@
 </a-scene>
 
 <script>
-const model = document.querySelector("#audiModel");
-let y = 0;
-let wireframe = false;
+const seed = document.querySelector("#seed");
+const particles = document.querySelector("#particles");
+const harmonics = document.querySelector("#harmonics");
+const connections = document.querySelector("#connections");
+const cube = document.querySelector("#cube");
+const portal = document.querySelector("#portal");
+const identity = document.querySelector("#identity");
 
-function setScale(s){
-  model.setAttribute("scale", `${s} ${s} ${s}`);
+let current = 0;
+
+// Stage functions
+function stage0_markerFound(){
+  console.log("Marker detected. Genesis begins.");
 }
 
-function rotateX(r){
-  const rot = model.getAttribute("rotation");
-  model.setAttribute("rotation", `${r} ${rot.y} ${rot.z}`);
+function stage1_seed(){
+  const s = document.createElement("a-sphere");
+  s.setAttribute("radius","0.05");
+  s.setAttribute("color","#00f");
+  s.setAttribute("material","emissive:#00f; emissiveIntensity:0.8");
+  s.setAttribute("animation__pulse","property: scale; dir: alternate; dur:2000; loop:true; to:0.07 0.07 0.07");
+  seed.appendChild(s);
 }
 
-function raise(){
-  y += 0.1;
-  model.setAttribute("position", `0 ${y} 0`);
-}
-
-function lower(){
-  y -= 0.1;
-  model.setAttribute("position", `0 ${y} 0`);
-}
-
-function toggleWireframe(){
-  wireframe = !wireframe;
-  const mesh = model.getObject3D("mesh");
-  if(mesh){
-    mesh.traverse(child=>{
-      if(child.isMesh){
-        child.material.wireframe = wireframe;
-      }
-    });
+function stage2_expansion(){
+  for(let i=0;i<20;i++){
+    const p=document.createElement("a-sphere");
+    p.setAttribute("radius","0.01");
+    p.setAttribute("color","#0ff");
+    p.setAttribute("position","0 0 0");
+    const x=(Math.random()-0.5)*1.5;
+    const y=(Math.random()-0.5)*1.5;
+    const z=(Math.random()-0.5)*1.5;
+    p.setAttribute("animation__move",`property: position; to:${x} ${y} ${z}; dur:2500; easing:easeOutQuad`);
+    p.setAttribute("animation__fade","property: opacity; to:0; dur:2500; easing:linear");
+    particles.appendChild(p);
   }
 }
 
-const configs = [
-  {scale:0.001,rotation:"0 0 0"},
-  {scale:0.01,rotation:"0 0 0"},
-  {scale:0.1,rotation:"0 0 0"},
-  {scale:1,rotation:"0 0 0"},
-  {scale:0.001,rotation:"-90 0 0"},
-  {scale:0.01,rotation:"-90 0 0"},
-  {scale:0.1,rotation:"-90 0 0"},
-  {scale:1,rotation:"-90 0 0"},
-  {scale:5,rotation:"0 0 0"},
-  {scale:10,rotation:"0 0 0"}
+function stage3_harmonics(){
+  for(let i=0;i<8;i++){
+    const angle=(i/8)*Math.PI*2;
+    const s=document.createElement("a-sphere");
+    s.setAttribute("radius","0.03");
+    s.setAttribute("color","#0ff");
+    s.setAttribute("position",`${Math.cos(angle)*0.3} 0 ${Math.sin(angle)*0.3}`);
+    harmonics.appendChild(s);
+  }
+}
+
+function stage4_connections(){
+  const spheres=harmonics.querySelectorAll("a-sphere");
+  for(let i=0;i<spheres.length;i++){
+    for(let j=i+1;j<spheres.length;j++){
+      const a=spheres[i].getAttribute("position").split(" ").map(Number);
+      const b=spheres[j].getAttribute("position").split(" ").map(Number);
+      const mid=[(a[0]+b[0])/2,(a[1]+b[1])/2,(a[2]+b[2])/2];
+      const dx=b[0]-a[0], dy=b[1]-a[1], dz=b[2]-a[2];
+      const dist=Math.sqrt(dx*dx+dy*dy+dz*dz);
+      const cyl=document.createElement("a-cylinder");
+      cyl.setAttribute("color","#0ff");
+      cyl.setAttribute("radius","0.005");
+      cyl.setAttribute("height",dist);
+      cyl.setAttribute("position",mid.join(" "));
+      cyl.setAttribute("rotation","90 0 0");
+      connections.appendChild(cyl);
+    }
+  }
+}
+
+function stage5_cube(){
+  const b=document.createElement("a-box");
+  b.setAttribute("depth","0.5");
+  b.setAttribute("height","0.5");
+  b.setAttribute("width","0.5");
+  b.setAttribute("material","wireframe:true; color:#0ff");
+  b.setAttribute("animation__rotate","property: rotation; to:0 360 0; loop:true; dur:60000");
+  cube.appendChild(b);
+}
+
+function stage6_resonance(){
+  cube.setAttribute("animation__pulse","property: scale; dir: alternate; dur:2000; loop:true; to:1.02 1.02 1.02");
+}
+
+function stage7_spiral(){
+  const comet=document.createElement("a-sphere");
+  comet.setAttribute("radius","0.01");
+  comet.setAttribute("color","#fff");
+  // Spiral motion would be scripted with JS tick or custom component
+  portal.appendChild(comet);
+}
+
+function stage8_portal(){
+  const ring=document.createElement("a-ring");
+  ring.setAttribute("radius-inner","0.3");
+  ring.setAttribute("radius-outer","0.35");
+  ring.setAttribute("color","#0ff");
+  ring.setAttribute("animation__expand","property: scale; from:0.1 0.1 0.1; to:8 8 8; dur:6000; easing:easeOutQuad");
+  portal.appendChild(ring);
+}
+
+function stage9_identity(){
+  const text=document.createElement("a-text");
+  text.setAttribute("value","Tony — Reality, Reimagined");
+  text.setAttribute("align","center");
+  text.setAttribute("color","#fff");
+  text.setAttribute("position","0 0.5 0");
+  text.setAttribute("animation__fade","property: opacity; from:0; to:1; dur:4000");
+  identity.appendChild(text);
+}
+
+function stage10_world(){
+  console.log("Load next world (Atlas, TradingOS, PortfolioOS, etc.)");
+}
+
+// Stage array
+const stages=[
+  stage0_markerFound,
+  stage1_seed,
+  stage2_expansion,
+  stage3_harmonics,
+  stage4_connections,
+  stage5_cube,
+  stage6_resonance,
+  stage7_spiral,
+  stage8_portal,
+  stage9_identity,
+  stage10_world
 ];
-let index = 0;
 
-function nextConfig(){
-  const c = configs[index];
-  model.setAttribute("scale", `${c.scale} ${c.scale} ${c.scale}`);
-  model.setAttribute("rotation", c.rotation);
-  console.log("Config:", c);
-  index++;
-  if(index>=configs.length) index=0;
+function runGenesis(){
+  let i=0;
+  function next(){
+    stages[i++]();
+    if(i<stages.length) setTimeout(next,5000);
+  }
+  next();
 }
 
-model.addEventListener("model-loaded", () => {
-  console.log("MODEL LOADED");
-  const mesh = model.getObject3D("mesh");
-  if(mesh){
-    mesh.traverse(child=>{
-      if(child.isMesh){
-        child.material.wireframe = wireframe;
-        child.material.side = THREE.DoubleSide;
-        child.frustumCulled = false;
-      }
-    });
-    const box = new THREE.Box3().setFromObject(mesh);
-    console.log("Bounding Box:", box);
-    console.log("Size:", box.getSize(new THREE.Vector3()));
-  }
-});
-
-model.addEventListener("model-error", e => {
-  console.error("MODEL ERROR", e);
-  alert("GLB failed to load");
+// Trigger on marker detection
+const marker=document.querySelector("#markerA");
+marker.addEventListener("markerFound",()=>{
+  runGenesis();
 });
 </script>
 
