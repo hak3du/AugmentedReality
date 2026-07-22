@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Audi GLB Debug</title>
+  <title>Audi GLB Debug Controls</title>
 
   <!-- Stable A-Frame version -->
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
@@ -11,9 +11,34 @@
 
   <style>
     html, body { margin:0; height:100%; overflow:hidden; }
+    #controls {
+      position:fixed; bottom:10px; left:10px;
+      background:rgba(0,0,0,0.7); color:white;
+      padding:10px; border-radius:8px; font-family:sans-serif;
+      z-index:9999;
+    }
+    #controls button {
+      margin:4px; padding:6px 10px; cursor:pointer;
+    }
   </style>
 </head>
 <body>
+
+<div id="controls">
+  <button onclick="setScale(0.001)">0.001</button>
+  <button onclick="setScale(0.01)">0.01</button>
+  <button onclick="setScale(0.1)">0.1</button>
+  <button onclick="setScale(1)">1</button>
+  <button onclick="setScale(5)">5</button>
+  <button onclick="setScale(10)">10</button>
+  <button onclick="rotateX(-90)">X -90</button>
+  <button onclick="rotateX(0)">X 0</button>
+  <button onclick="rotateX(90)">X 90</button>
+  <button onclick="toggleWireframe()">Wireframe</button>
+  <button onclick="raise()">Y +</button>
+  <button onclick="lower()">Y -</button>
+  <button onclick="nextConfig()">Next Config</button>
+</div>
 
 <a-scene
   embedded
@@ -22,66 +47,105 @@
   loading-screen="enabled:false"
   arjs="trackingMethod:best; sourceType:webcam; debugUIEnabled:false;">
 
-  <!-- Asset preload -->
   <a-assets timeout="10000">
     <a-asset-item id="audiAsset" src="assets/audi.glb"></a-asset-item>
   </a-assets>
 
-  <!-- Marker using your own pattern -->
-  <a-marker
-    id="markerA"
-    type="pattern"
-    url="assets/marker.patt">
-
-    <!-- Debug cube -->
+  <a-marker id="markerA" type="pattern" url="assets/marker.patt">
     <a-box color="red" depth="0.1" width="0.1" height="0.1"></a-box>
-
-    <!-- Audi GLB -->
-    <a-entity
-      id="audiModel"
-      gltf-model="#audiAsset"
-      position="0 0.2 0"
-      scale="1 1 1"
-      rotation="-90 0 0">
+    <a-entity id="audiModel"
+              gltf-model="#audiAsset"
+              position="0 0 0"
+              scale="1 1 1"
+              rotation="0 0 0">
     </a-entity>
-
-    <!-- Primitive sanity check -->
     <a-sphere radius="0.15" color="blue" position="0 0.3 0"></a-sphere>
-
   </a-marker>
 
   <a-entity camera></a-entity>
-
-  <!-- Lighting -->
   <a-light type="ambient" intensity="2"></a-light>
   <a-light type="directional" intensity="2" position="2 5 3"></a-light>
 </a-scene>
 
 <script>
 const model = document.querySelector("#audiModel");
-const marker = document.querySelector("#markerA");
+let y = 0;
+let wireframe = false;
+
+function setScale(s){
+  model.setAttribute("scale", `${s} ${s} ${s}`);
+}
+
+function rotateX(r){
+  const rot = model.getAttribute("rotation");
+  model.setAttribute("rotation", `${r} ${rot.y} ${rot.z}`);
+}
+
+function raise(){
+  y += 0.1;
+  model.setAttribute("position", `0 ${y} 0`);
+}
+
+function lower(){
+  y -= 0.1;
+  model.setAttribute("position", `0 ${y} 0`);
+}
+
+function toggleWireframe(){
+  wireframe = !wireframe;
+  const mesh = model.getObject3D("mesh");
+  if(mesh){
+    mesh.traverse(child=>{
+      if(child.isMesh){
+        child.material.wireframe = wireframe;
+      }
+    });
+  }
+}
+
+const configs = [
+  {scale:0.001,rotation:"0 0 0"},
+  {scale:0.01,rotation:"0 0 0"},
+  {scale:0.1,rotation:"0 0 0"},
+  {scale:1,rotation:"0 0 0"},
+  {scale:0.001,rotation:"-90 0 0"},
+  {scale:0.01,rotation:"-90 0 0"},
+  {scale:0.1,rotation:"-90 0 0"},
+  {scale:1,rotation:"-90 0 0"},
+  {scale:5,rotation:"0 0 0"},
+  {scale:10,rotation:"0 0 0"}
+];
+let index = 0;
+
+function nextConfig(){
+  const c = configs[index];
+  model.setAttribute("scale", `${c.scale} ${c.scale} ${c.scale}`);
+  model.setAttribute("rotation", c.rotation);
+  console.log("Config:", c);
+  index++;
+  if(index>=configs.length) index=0;
+}
 
 model.addEventListener("model-loaded", () => {
   console.log("MODEL LOADED");
   const mesh = model.getObject3D("mesh");
-  console.log(mesh);
-
-  const box = new THREE.Box3().setFromObject(mesh);
-  console.log("Bounding Box:", box);
-  console.log("Size:", box.getSize(new THREE.Vector3()));
+  if(mesh){
+    mesh.traverse(child=>{
+      if(child.isMesh){
+        child.material.wireframe = wireframe;
+        child.material.side = THREE.DoubleSide;
+        child.frustumCulled = false;
+      }
+    });
+    const box = new THREE.Box3().setFromObject(mesh);
+    console.log("Bounding Box:", box);
+    console.log("Size:", box.getSize(new THREE.Vector3()));
+  }
 });
 
 model.addEventListener("model-error", e => {
   console.error("MODEL ERROR", e);
   alert("GLB failed to load");
-});
-
-marker.addEventListener("markerFound", () => {
-  console.log("MARKER FOUND");
-});
-
-marker.addEventListener("markerLost", () => {
-  console.log("MARKER LOST");
 });
 </script>
 
