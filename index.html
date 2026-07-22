@@ -27,8 +27,11 @@
     <a-asset-item id="audiAsset" src="assets/audi.glb"></a-asset-item>
   </a-assets>
 
-  <!-- Marker -->
-  <a-marker id="markerA" preset="hiro">
+  <!-- Marker using your own pattern -->
+  <a-marker
+    id="markerA"
+    type="pattern"
+    url="assets/marker.patt">
 
     <!-- Debug cube -->
     <a-box color="red" depth="0.1" width="0.1" height="0.1"></a-box>
