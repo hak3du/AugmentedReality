@@ -2,11 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>The Genesis Sequence</title>
+  <title>The Birth of Space</title>
 
-  <!-- Stable A-Frame -->
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  <!-- AR.js -->
   <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
 
   <style>
@@ -15,154 +13,135 @@
 </head>
 <body>
 
-<a-scene
-  embedded
-  arjs="trackingMethod:best; sourceType:webcam; debugUIEnabled:false;">
-
+<a-scene embedded arjs="trackingMethod:best; sourceType:webcam; debugUIEnabled:false;">
   <a-marker id="markerA" type="pattern" url="assets/marker.patt">
-    <a-entity id="seed"></a-entity>
-    <a-entity id="particles"></a-entity>
-    <a-entity id="harmonics"></a-entity>
-    <a-entity id="connections"></a-entity>
-    <a-entity id="cube"></a-entity>
-    <a-entity id="portal"></a-entity>
-    <a-entity id="identity"></a-entity>
+    <a-entity id="stageRoot"></a-entity>
   </a-marker>
-
   <a-entity camera></a-entity>
   <a-light type="ambient" intensity="2"></a-light>
   <a-light type="directional" intensity="2" position="2 5 3"></a-light>
 </a-scene>
 
 <script>
-const seed = document.querySelector("#seed");
-const particles = document.querySelector("#particles");
-const harmonics = document.querySelector("#harmonics");
-const connections = document.querySelector("#connections");
-const cube = document.querySelector("#cube");
-const portal = document.querySelector("#portal");
-const identity = document.querySelector("#identity");
+const root = document.querySelector("#stageRoot");
 
-let current = 0;
-
-// Stage functions
-function stage0_markerFound(){
-  console.log("Marker detected. Genesis begins.");
+function recognition(){
+  // ACT I — Recognition
+  const pulse=document.createElement("a-circle");
+  pulse.setAttribute("radius","0.5");
+  pulse.setAttribute("color","#0ff");
+  pulse.setAttribute("opacity","0.2");
+  pulse.setAttribute("animation","property: scale; from:0.1 0.1 0.1; to:2 2 2; dur:3000; easing:easeOutQuad");
+  root.appendChild(pulse);
+  console.log("Reality detected.");
 }
 
-function stage1_seed(){
-  const s = document.createElement("a-sphere");
-  s.setAttribute("radius","0.05");
-  s.setAttribute("color","#00f");
-  s.setAttribute("material","emissive:#00f; emissiveIntensity:0.8");
-  s.setAttribute("animation__pulse","property: scale; dir: alternate; dur:2000; loop:true; to:0.07 0.07 0.07");
-  seed.appendChild(s);
-}
+function singularity(){
+  // ACT II — Singularity
+  const point=document.createElement("a-sphere");
+  point.setAttribute("radius","0.01");
+  point.setAttribute("color","#fff");
+  point.setAttribute("animation","property: scale; dir: alternate; dur:200; loop:true; to:0.02 0.02 0.02");
+  root.appendChild(point);
 
-function stage2_expansion(){
-  for(let i=0;i<20;i++){
+  // inward particles
+  for(let i=0;i<30;i++){
     const p=document.createElement("a-sphere");
-    p.setAttribute("radius","0.01");
+    p.setAttribute("radius","0.005");
     p.setAttribute("color","#0ff");
+    const x=(Math.random()-0.5)*2, y=(Math.random()-0.5)*2, z=(Math.random()-0.5)*2;
+    p.setAttribute("position",`${x} ${y} ${z}`);
+    p.setAttribute("animation",`property: position; to:0 0 0; dur:3000; easing:easeInQuad`);
+    root.appendChild(p);
+  }
+}
+
+function birth(){
+  // ACT III — Birth
+  for(let i=0;i<200;i++){
+    const p=document.createElement("a-sphere");
+    p.setAttribute("radius","0.005");
+    p.setAttribute("color","#fff");
+    const x=(Math.random()-0.5)*3, y=(Math.random()-0.5)*3, z=(Math.random()-0.5)*3;
     p.setAttribute("position","0 0 0");
-    const x=(Math.random()-0.5)*1.5;
-    const y=(Math.random()-0.5)*1.5;
-    const z=(Math.random()-0.5)*1.5;
-    p.setAttribute("animation__move",`property: position; to:${x} ${y} ${z}; dur:2500; easing:easeOutQuad`);
-    p.setAttribute("animation__fade","property: opacity; to:0; dur:2500; easing:linear");
-    particles.appendChild(p);
+    p.setAttribute("animation",`property: position; to:${x} ${y} ${z}; dur:2000; easing:easeOutQuad;`);
+    root.appendChild(p);
   }
 }
 
-function stage3_harmonics(){
-  for(let i=0;i<8;i++){
-    const angle=(i/8)*Math.PI*2;
-    const s=document.createElement("a-sphere");
-    s.setAttribute("radius","0.03");
-    s.setAttribute("color","#0ff");
-    s.setAttribute("position",`${Math.cos(angle)*0.3} 0 ${Math.sin(angle)*0.3}`);
-    harmonics.appendChild(s);
+function orderEmerges(){
+  // ACT IV — Order Emerges
+  // Example: connect particles into lines
+  const line=document.createElement("a-cylinder");
+  line.setAttribute("color","#0ff");
+  line.setAttribute("radius","0.002");
+  line.setAttribute("height","1");
+  line.setAttribute("position","0 0 0.5");
+  root.appendChild(line);
+}
+
+function consciousness(){
+  // ACT V — Consciousness
+  root.setAttribute("animation__pulse","property: scale; dir: alternate; dur:2000; loop:true; to:1.05 1.05 1.05");
+}
+
+function rotation(){
+  // ACT VI — Rotation
+  root.setAttribute("animation__rotate","property: rotation; to:360 360 360; loop:true; dur:60000");
+}
+
+function metamorphosis(){
+  // ACT VII — Metamorphosis
+  const cube=document.createElement("a-box");
+  cube.setAttribute("depth","0.5");
+  cube.setAttribute("height","0.5");
+  cube.setAttribute("width","0.5");
+  cube.setAttribute("material","wireframe:true; color:#0ff");
+  root.appendChild(cube);
+  // unfolding would be scripted with custom component
+}
+
+function portal(){
+  // ACT VIII — Portal
+  for(let i=0;i<5;i++){
+    const ring=document.createElement("a-ring");
+    ring.setAttribute("radius-inner",0.2+i*0.05);
+    ring.setAttribute("radius-outer",0.25+i*0.05);
+    ring.setAttribute("color","#0ff");
+    ring.setAttribute("rotation",`0 ${i*45} 0`);
+    ring.setAttribute("animation",`property: rotation; to:0 360 0; loop:true; dur:${10000+i*2000}`);
+    root.appendChild(ring);
   }
 }
 
-function stage4_connections(){
-  const spheres=harmonics.querySelectorAll("a-sphere");
-  for(let i=0;i<spheres.length;i++){
-    for(let j=i+1;j<spheres.length;j++){
-      const a=spheres[i].getAttribute("position").split(" ").map(Number);
-      const b=spheres[j].getAttribute("position").split(" ").map(Number);
-      const mid=[(a[0]+b[0])/2,(a[1]+b[1])/2,(a[2]+b[2])/2];
-      const dx=b[0]-a[0], dy=b[1]-a[1], dz=b[2]-a[2];
-      const dist=Math.sqrt(dx*dx+dy*dy+dz*dz);
-      const cyl=document.createElement("a-cylinder");
-      cyl.setAttribute("color","#0ff");
-      cyl.setAttribute("radius","0.005");
-      cyl.setAttribute("height",dist);
-      cyl.setAttribute("position",mid.join(" "));
-      cyl.setAttribute("rotation","90 0 0");
-      connections.appendChild(cyl);
-    }
-  }
-}
-
-function stage5_cube(){
-  const b=document.createElement("a-box");
-  b.setAttribute("depth","0.5");
-  b.setAttribute("height","0.5");
-  b.setAttribute("width","0.5");
-  b.setAttribute("material","wireframe:true; color:#0ff");
-  b.setAttribute("animation__rotate","property: rotation; to:0 360 0; loop:true; dur:60000");
-  cube.appendChild(b);
-}
-
-function stage6_resonance(){
-  cube.setAttribute("animation__pulse","property: scale; dir: alternate; dur:2000; loop:true; to:1.02 1.02 1.02");
-}
-
-function stage7_spiral(){
-  const comet=document.createElement("a-sphere");
-  comet.setAttribute("radius","0.01");
-  comet.setAttribute("color","#fff");
-  // Spiral motion would be scripted with JS tick or custom component
-  portal.appendChild(comet);
-}
-
-function stage8_portal(){
-  const ring=document.createElement("a-ring");
-  ring.setAttribute("radius-inner","0.3");
-  ring.setAttribute("radius-outer","0.35");
-  ring.setAttribute("color","#0ff");
-  ring.setAttribute("animation__expand","property: scale; from:0.1 0.1 0.1; to:8 8 8; dur:6000; easing:easeOutQuad");
-  portal.appendChild(ring);
-}
-
-function stage9_identity(){
+function information(){
+  // ACT IX — Information
   const text=document.createElement("a-text");
-  text.setAttribute("value","Tony — Reality, Reimagined");
+  text.setAttribute("value","Tony");
   text.setAttribute("align","center");
   text.setAttribute("color","#fff");
   text.setAttribute("position","0 0.5 0");
-  text.setAttribute("animation__fade","property: opacity; from:0; to:1; dur:4000");
-  identity.appendChild(text);
+  text.setAttribute("animation","property: opacity; from:0; to:1; dur:4000");
+  root.appendChild(text);
 }
 
-function stage10_world(){
-  console.log("Load next world (Atlas, TradingOS, PortfolioOS, etc.)");
+function invitation(){
+  // ACT X — Invitation
+  console.log("Spatial Computing isn't about placing objects in reality. It's about revealing what reality can become.");
 }
 
 // Stage array
 const stages=[
-  stage0_markerFound,
-  stage1_seed,
-  stage2_expansion,
-  stage3_harmonics,
-  stage4_connections,
-  stage5_cube,
-  stage6_resonance,
-  stage7_spiral,
-  stage8_portal,
-  stage9_identity,
-  stage10_world
+  recognition,
+  singularity,
+  birth,
+  orderEmerges,
+  consciousness,
+  rotation,
+  metamorphosis,
+  portal,
+  information,
+  invitation
 ];
 
 function runGenesis(){
