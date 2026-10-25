@@ -8,6 +8,7 @@ A small browser-based spatial experience, with two separate entry points:
 ## Current assets
 
 - `assets/marker.patt`: marker pattern used by the existing AR entry.
+- [Printable marker SVG](assets/printable-marker.svg): reconstructed from the first 16×16 grayscale sample matrix in `marker.patt`, with a high-contrast border. Print at a square aspect ratio, keep the full black border visible, and test recognition on the target phone; this reconstructed print asset is not yet validated against a physical device.
 - `assets/audi.glb`: currently only 2 bytes and **not a usable GLB model**. Do not rely on it in the scene until it is replaced with a valid model and checked in a GLB viewer.
 - `preview.html`: independent, camera-free visualisation. It deliberately does not load the webcam.
 
