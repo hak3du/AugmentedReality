@@ -49,6 +49,7 @@ button:hover,a:hover,button:focus-visible,a:focus-visible{outline:2px solid var(
   const stage = document.querySelector('#ar-stage');
   let scene = null, marker = null, root = null, introVideo = null;
   let sequenceTimer = null, sequenceRunning = false, sequenceIndex = 0;
+  let cameraReady = false;
 
   function addEntity(tag, attrs = {}) {
     const el = document.createElement(tag);
@@ -190,27 +191,35 @@ button:hover,a:hover,button:focus-visible,a:focus-visible{outline:2px solid var(
       status.textContent='Marker lost — point the camera at the pattern to resume.';
     });
     scene.addEventListener('camera-error',()=>{
+      cameraReady=false;
+      clearSequence();
       status.textContent='Camera could not start. Check browser permission and HTTPS, or use the camera-free preview.';
       launch.disabled=false;
       launch.textContent='Retry AR camera';
     });
     scene.addEventListener('camera-init',()=>{
+      cameraReady=true;
       status.textContent='Camera ready — point it at the printed pattern marker.';
+      launch.disabled=true;
+      launch.textContent='AR camera active';
     });
     launch.disabled=true;
     launch.textContent='Starting camera…';
     status.textContent='Starting AR. Allow camera access if your browser asks.';
     setTimeout(()=>{
-      if(status.textContent==='Starting AR. Allow camera access if your browser asks.'){
-        status.textContent='Waiting for camera. If it stays blank, check permission or use the desktop preview.';
+      if(!cameraReady && scene){
+        status.textContent='Camera has not confirmed startup. Check permission and HTTPS, or use the desktop preview.';
         launch.disabled=false;
         launch.textContent='Retry AR camera';
-      } else {
-        launch.textContent='AR camera active';
       }
     },8000);
   }
-  launch.addEventListener('click',mountScene);
+  launch.addEventListener('click',()=>{
+    if(scene && !cameraReady && !launch.disabled){
+      scene.remove(); scene=null; marker=null; root=null; introVideo=null;
+    }
+    mountScene();
+  });
 })();
 </script>
 </body>
