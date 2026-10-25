@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="theme-color" content="#04070d">
+<meta name="description" content="Camera-free desktop preview of the Thabang Tony Ngoepe spatial portfolio concept.">
+<title>Spatial Portfolio — Desktop Preview</title>
+<script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+<style>
+:root{color-scheme:dark;--bg:#04070d;--panel:rgba(8,14,24,.82);--line:rgba(78,201,212,.26);--cyan:#4ec9d4;--gold:#c8a45c;--fg:#e8f0f7;--muted:#8c9aaa}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--fg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif}
+a-scene{position:fixed;inset:0}
+.hud{position:fixed;z-index:10;pointer-events:none}
+.top{top:20px;left:22px;right:22px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.brand{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#b8c6d5}
+.pill{font-size:10px;letter-spacing:.13em;text-transform:uppercase;padding:8px 11px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--cyan);backdrop-filter:blur(16px)}
+.hero{left:clamp(18px,5vw,64px);top:50%;transform:translateY(-50%);width:min(330px,36vw);padding:22px 22px 24px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,rgba(7,16,28,.88),rgba(7,11,19,.56));box-shadow:0 20px 80px #0008;backdrop-filter:blur(18px)}
+.eyebrow{font:600 10px ui-monospace,monospace;letter-spacing:.2em;text-transform:uppercase;color:var(--cyan)}
+h1{font-size:clamp(28px,4vw,48px);line-height:.98;letter-spacing:-.06em;margin:15px 0 13px}
+p{font-size:13px;line-height:1.7;color:var(--muted);margin:0}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:18px}
+.tags span{font-size:10px;border:1px solid rgba(255,255,255,.12);border-radius:5px;padding:5px 7px;color:#c7d2de}
+.controls{right:22px;bottom:20px;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.control-group{pointer-events:auto;display:flex;gap:6px;padding:7px;border:1px solid var(--line);border-radius:13px;background:var(--panel);backdrop-filter:blur(16px);flex-wrap:wrap;justify-content:flex-end}
+button,a.btn{font:600 10px ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--fg);border:1px solid transparent;background:transparent;padding:10px 11px;border-radius:7px;cursor:pointer;text-decoration:none}
+button:hover,button:focus-visible,a.btn:hover,a.btn:focus-visible{border-color:var(--cyan);background:rgba(78,201,212,.1);outline:none}
+button[aria-pressed=true]{color:var(--cyan);background:rgba(78,201,212,.1);border-color:var(--line)}
+.hint{font-size:10px;letter-spacing:.08em;color:var(--muted);text-align:right;max-width:320px}
+.bottom{left:22px;bottom:22px;font:10px ui-monospace,monospace;letter-spacing:.12em;color:#7e8b9d}
+.status{color:var(--gold)}
+@media(max-width:700px){.top{top:12px;left:12px;right:12px}.brand{font-size:9px}.hero{left:12px;top:auto;bottom:100px;transform:none;width:min(300px,calc(100vw - 24px));padding:16px}h1{font-size:32px;margin:9px 0}.hero p{font-size:11px}.tags{margin-top:10px}.controls{right:12px;bottom:12px;left:12px;align-items:flex-end}.control-group{max-width:100%}.control-group button{padding:9px 8px;font-size:9px}.bottom{display:none}.hint{font-size:9px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<a-scene id="scene" renderer="antialias:true; colorManagement:true; physicallyCorrectLights:true" background="color: #04070d" fog="type: exponential; color: #04070d; density: 0.018" vr-mode-ui="enabled:false" loading-screen="enabled:false">
+  <a-assets>
+    <a-mixin id="cyan-mat" material="color:#4ec9d4; emissive:#0c6470; emissiveIntensity:.7; metalness:.65; roughness:.22"></a-mixin>
+    <a-mixin id="gold-mat" material="color:#c8a45c; emissive:#6c4c16; emissiveIntensity:.45; metalness:.7; roughness:.28"></a-mixin>
+  </a-assets>
+  <a-entity light="type:ambient; intensity:1.1; color:#b8d8ff"></a-entity>
+  <a-entity light="type:directional; intensity:2.0; color:#d5f7ff" position="3 5 5"></a-entity>
+  <a-entity light="type:point; intensity:2.2; distance:18; color:#4ec9d4" position="0 2 1"></a-entity>
+  <a-entity id="world-root">
+    <a-ring id="portal-outer" position="0 1.35 0" radius-inner="1.55" radius-outer="1.62" rotation="0 0 0" material="color:#4ec9d4;emissive:#168b9b;emissiveIntensity:1.2;side:double;metalness:.7;roughness:.2" animation="property:rotation;to:0 0 360;dur:38000;loop:true;easing:linear"></a-ring>
+    <a-ring position="0 1.35 -.04" radius-inner="1.27" radius-outer="1.29" material="color:#c8a45c;emissive:#5e471d;emissiveIntensity:.8;side:double" animation="property:rotation;to:0 360 0;dur:28000;loop:true;easing:linear"></a-ring>
+    <a-ring position="0 1.35 -.08" radius-inner=".95" radius-outer=".97" material="color:#3a8fd4;emissive:#1c4b7c;emissiveIntensity:1;side:double" animation="property:rotation;to:0 0 -360;dur:21000;loop:true;easing:linear"></a-ring>
+    <a-sphere position="0 1.35 0" radius=".62" segments-width="48" segments-height="32" material="color:#0d1b2c;emissive:#0a3c4c;emissiveIntensity:.75;metalness:.8;roughness:.18;wireframe:false" animation="property:scale;dir:alternate;to:1.04 1.04 1.04;dur:2800;loop:true;easing:easeInOutSine"></a-sphere>
+    <a-sphere position="0 1.35 .04" radius=".48" material="color:#09111c;wireframe:true;transparent:true;opacity:.65"></a-sphere>
+    <a-torus position="0 1.35 .12" radius="1.02" radius-tubular=".012" rotation="62 0 18" material="color:#4ec9d4;emissive:#0b6470;emissiveIntensity:1" animation="property:rotation;to:62 360 18;dur:24000;loop:true;easing:linear"></a-torus>
+    <a-torus position="0 1.35 .16" radius=".78" radius-tubular=".009" rotation="24 45 74" material="color:#c8a45c;emissive:#5c431a;emissiveIntensity:.8" animation="property:rotation;to:24 -315 74;dur:32000;loop:true;easing:linear"></a-torus>
+    <a-entity id="network-layer"></a-entity>
+    <a-entity id="particle-layer"></a-entity>
+    <a-entity position="0 3.65 .05">
+      <a-plane width="3.5" height=".72" material="color:#07111d;opacity:.86;transparent:true;side:double"></a-plane>
+      <a-text value="TONY NGOEPE" align="center" color="#e8f0f7" width="4.2" position="0 .09 .02" font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"></a-text>
+      <a-text value="SYSTEMS  /  SECURITY  /  SOFTWARE" align="center" color="#4ec9d4" width="3.8" position="0 -.2 .02"></a-text>
+    </a-entity>
+    <a-entity position="2.15 1.45 -.15" rotation="0 -20 0">
+      <a-box width=".78" height=".78" depth=".78" material="color:#0a1625;wireframe:true;emissive:#4ec9d4;emissiveIntensity:.5" animation="property:rotation;to:360 360 0;dur:30000;loop:true;easing:linear"></a-box>
+      <a-text value="POLICY\nAS CODE" align="center" color="#c8a45c" width="1.5" position="0 -.62 .08"></a-text>
+    </a-entity>
+    <a-entity position="-2.1 1.55 -.25" rotation="0 20 0">
+      <a-octahedron radius=".48" material="color:#091624;wireframe:true;emissive:#3a8fd4;emissiveIntensity:.9" animation="property:rotation;to:0 360 360;dur:26000;loop:true;easing:linear"></a-octahedron>
+      <a-text value="CRYPTO\nRESEARCH" align="center" color="#4ec9d4" width="1.5" position="0 -.65 .05"></a-text>
+    </a-entity>
+    <a-cylinder position="0 .15 0" radius="1.75" height=".05" material="color:#0b1a29;metalness:.7;roughness:.3"></a-cylinder>
+    <a-torus position="0 .2 0" radius="1.78" radius-tubular=".018" rotation="90 0 0" material="color:#4ec9d4;emissive:#168b9b;emissiveIntensity:1"></a-torus>
+  </a-entity>
+  <a-entity id="preview-camera" camera="active:true" look-controls="enabled:false" wasd-controls="enabled:false" position="0 2.1 7"></a-entity>
+</a-scene>
+
+<header class="hud top"><span class="brand">PORTFOLIO OS / SPATIAL LAB</span><span class="pill">Desktop preview · Camera not used</span></header>
+<aside class="hud hero">
+  <div class="eyebrow">INTERACTIVE SCENE / PREVIEW BUILD</div>
+  <h1>Build beyond the screen.</h1>
+  <p>Explore the spatial portfolio concept from any angle. This preview runs without webcam access; the marker-tracked AR entry point remains separate.</p>
+  <div class="tags"><span>SECURITY</span><span>SOFTWARE</span><span>CRYPTOGRAPHY</span><span>SPATIAL UI</span></div>
+</aside>
+<nav class="hud controls" aria-label="Scene camera controls">
+  <div class="control-group" aria-label="Preset views">
+    <button type="button" data-view="front" aria-pressed="true">Front</button>
+    <button type="button" data-view="left" aria-pressed="false">Left</button>
+    <button type="button" data-view="right" aria-pressed="false">Right</button>
+    <button type="button" data-view="back" aria-pressed="false">Back</button>
+    <button type="button" data-view="top" aria-pressed="false">Top</button>
+    <button type="button" data-view="reset" aria-pressed="false">Reset</button>
+  </div>
+  <div class="hint">DRAG TO ORBIT · SCROLL TO ZOOM · ARROW KEYS TO ROTATE</div>
+  <div class="control-group">
+    <a class="btn" href="./index.html">Open camera AR ↗</a>
+    <a class="btn" href="https://github.com/hak3du/portfolio">Portfolio source ↗</a>
+  </div>
+</nav>
+<div class="hud bottom">SPATIAL PREVIEW / <span class="status">NO CAMERA PERMISSION REQUIRED</span></div>
+<script>
+(() => {
+  const scene = document.querySelector('#scene');
+  const camera = document.querySelector('#preview-camera');
+  const target = new THREE.Vector3(0, 1.55, 0);
+  let theta = 0, phi = 1.35, radius = 7.2, dragging = false, lastX = 0, lastY = 0;
+  const clamp = (v,min,max) => Math.max(min,Math.min(max,v));
+  function updateCamera() {
+    const x = target.x + radius * Math.sin(phi) * Math.sin(theta);
+    const y = target.y + radius * Math.cos(phi);
+    const z = target.z + radius * Math.sin(phi) * Math.cos(theta);
+    camera.object3D.position.set(x,y,z);
+    camera.object3D.lookAt(target);
+  }
+  function setView(view) {
+    const presets = {front:[0,1.35,7.2],left:[-Math.PI/2,1.35,7.2],right:[Math.PI/2,1.35,7.2],back:[Math.PI,1.35,7.2],top:[0,.18,8.2],reset:[0,1.35,7.2]};
+    const v = presets[view] || presets.reset;
+    theta=v[0];phi=v[1];radius=v[2];updateCamera();
+    document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===view)));
+  }
+  function wireControls() {
+    const canvas=scene.canvas;
+    if(!canvas)return;
+    canvas.style.cursor='grab';
+    canvas.addEventListener('pointerdown',e=>{if(e.button!==0)return;dragging=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture?.(e.pointerId);canvas.style.cursor='grabbing';});
+    canvas.addEventListener('pointermove',e=>{if(!dragging)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;theta-=dx*.006;phi=clamp(phi+dy*.006,.12,Math.PI-.12);updateCamera();});
+    const end=()=>{dragging=false;canvas.style.cursor='grab';};
+    canvas.addEventListener('pointerup',end);canvas.addEventListener('pointercancel',end);
+    canvas.addEventListener('wheel',e=>{e.preventDefault();radius=clamp(radius+e.deltaY*.008,4.2,13);updateCamera();},{passive:false});
+    document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
+    window.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();if(e.key==='ArrowLeft')theta-=.12;if(e.key==='ArrowRight')theta+=.12;if(e.key==='ArrowUp')phi=clamp(phi-.08,.12,Math.PI-.12);if(e.key==='ArrowDown')phi=clamp(phi+.08,.12,Math.PI-.12);updateCamera();}});
+    updateCamera();
+  }
+  function populateScene() {
+    const p=document.querySelector('#particle-layer'), n=document.querySelector('#network-layer');
+    for(let i=0;i<115;i++){
+      const a=Math.random()*Math.PI*2, y=.25+Math.random()*3.8, r=2.4+Math.random()*3.8;
+      const dot=document.createElement('a-sphere');dot.setAttribute('radius',String(.012+Math.random()*.025));
+      dot.setAttribute('position',`${Math.cos(a)*r} ${y} ${Math.sin(a)*r-1.2}`);
+      dot.setAttribute('material',`color:${i%7===0?'#c8a45c':'#4ec9d4'};emissive:${i%7===0?'#6c4c16':'#0c6470'};emissiveIntensity:.8;opacity:.8;transparent:true`);
+      dot.setAttribute('animation',`property:position;dir:alternate;to:${Math.cos(a)*r} ${y+.18} ${Math.sin(a)*r-1.2};dur:${2500+Math.floor(Math.random()*4000)};loop:true;easing:easeInOutSine`);
+      p.appendChild(dot);
+    }
+    for(let i=0;i<24;i++){
+      const a=i*Math.PI*2/24,r=2.25;
+      const node=document.createElement('a-sphere');node.setAttribute('radius','.035');node.setAttribute('position',`${Math.cos(a)*r} ${1.35+Math.sin(a)*.85} -.35`);
+      node.setAttribute('material','color:#4ec9d4;emissive:#168b9b;emissiveIntensity:1');n.appendChild(node);
+    }
+  }
+  scene.addEventListener('loaded',()=>{populateScene();wireControls();});
+})();
+</script>
+</body>
+</html>
