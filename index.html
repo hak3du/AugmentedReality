@@ -1,164 +1,217 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>The Birth of Space</title>
-
-  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-
-  <style>
-    html, body { margin:0; height:100%; overflow:hidden; }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="theme-color" content="#04070d">
+<meta name="description" content="Marker-tracked spatial portfolio experience by Thabang Tony Ngoepe.">
+<title>The Birth of Space — AR Experience</title>
+<script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+<script src="https://raw.githack.com/AR-js-org/AR.js/3.4.8/aframe/build/aframe-ar.js"></script>
+<style>
+:root{color-scheme:dark;--bg:#04070d;--panel:rgba(7,13,23,.9);--line:rgba(78,201,212,.28);--cyan:#4ec9d4;--gold:#c8a45c;--fg:#e7eef7;--muted:#9aa8b9}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--fg);font-family:Inter,system-ui,-apple-system,sans-serif}
+#ar-stage{position:fixed;inset:0}a-scene{width:100%;height:100%}
+.overlay{position:fixed;z-index:20;left:14px;right:14px;top:14px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;pointer-events:none}
+.panel{pointer-events:auto;width:min(440px,calc(100vw - 28px));padding:16px 18px;border:1px solid var(--line);border-radius:14px;background:var(--panel);backdrop-filter:blur(16px);box-shadow:0 12px 48px #0007}
+.eyebrow{font:600 10px ui-monospace,monospace;letter-spacing:.18em;text-transform:uppercase;color:var(--cyan)}
+h1{font-size:clamp(22px,4vw,34px);line-height:1.05;letter-spacing:-.04em;margin:9px 0}
+p{font-size:12px;line-height:1.6;color:var(--muted);margin:7px 0 12px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+button,a{font:600 10px ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--fg);border:1px solid var(--line);border-radius:7px;background:rgba(78,201,212,.07);padding:10px 12px;text-decoration:none;cursor:pointer}
+button:hover,a:hover,button:focus-visible,a:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+#launch{background:var(--cyan);color:#041016;border-color:var(--cyan)}
+#status{font-size:11px;color:var(--gold);margin-top:10px;min-height:16px}
+#launch[disabled]{opacity:.55;cursor:wait}
+#help{position:fixed;z-index:15;left:14px;bottom:14px;max-width:min(360px,calc(100vw - 28px));font-size:10px;line-height:1.5;color:#c5d0dd;padding:9px 12px;border:1px solid rgba(255,255,255,.12);border-radius:9px;background:rgba(4,7,13,.72);backdrop-filter:blur(12px)}
+@media(max-width:620px){.overlay{top:8px;left:8px;right:8px}.panel{padding:13px 14px}#help{left:8px;bottom:8px}p{font-size:11px}.actions a{display:none}}
+</style>
 </head>
 <body>
-
-<a-scene embedded arjs="trackingMethod:best; sourceType:webcam; debugUIEnabled:false;">
-  <a-marker id="markerA" type="pattern" url="assets/marker.patt">
-    <a-entity id="stageRoot"></a-entity>
-  </a-marker>
-  <a-entity camera></a-entity>
-  <a-light type="ambient" intensity="2"></a-light>
-  <a-light type="directional" intensity="2" position="2 5 3"></a-light>
-</a-scene>
-
+<div id="ar-stage"></div>
+<header class="overlay">
+  <section class="panel" aria-labelledby="title">
+    <div class="eyebrow">SPATIAL PORTFOLIO / MARKER MODE</div>
+    <h1 id="title">The Birth of Space</h1>
+    <p>Launch the camera experience and point it at the printed pattern marker. A floating intro panel and a short animated sequence will appear when the marker is recognised. Prefer not to use a camera? Open the desktop preview.</p>
+    <div class="actions">
+      <button id="launch" type="button">Launch AR camera</button>
+      <a href="./preview.html">Camera-free preview ↗</a>
+    </div>
+    <div id="status" role="status" aria-live="polite">Camera is off until you launch AR.</div>
+  </section>
+</header>
+<div id="help">Use HTTPS on a supported mobile browser. Allow camera access only when prompted. Hold the pattern marker steady and well lit. Desktop scene preview does not require a camera.</div>
 <script>
-const root = document.querySelector("#stageRoot");
+(() => {
+  const launch = document.querySelector('#launch');
+  const status = document.querySelector('#status');
+  const stage = document.querySelector('#ar-stage');
+  let scene = null, marker = null, root = null, introVideo = null;
+  let sequenceTimer = null, sequenceRunning = false, sequenceIndex = 0;
 
-function recognition(){
-  // ACT I — Recognition
-  const pulse=document.createElement("a-circle");
-  pulse.setAttribute("radius","0.5");
-  pulse.setAttribute("color","#0ff");
-  pulse.setAttribute("opacity","0.2");
-  pulse.setAttribute("animation","property: scale; from:0.1 0.1 0.1; to:2 2 2; dur:3000; easing:easeOutQuad");
-  root.appendChild(pulse);
-  console.log("Reality detected.");
-}
-
-function singularity(){
-  // ACT II — Singularity
-  const point=document.createElement("a-sphere");
-  point.setAttribute("radius","0.01");
-  point.setAttribute("color","#fff");
-  point.setAttribute("animation","property: scale; dir: alternate; dur:200; loop:true; to:0.02 0.02 0.02");
-  root.appendChild(point);
-
-  // inward particles
-  for(let i=0;i<30;i++){
-    const p=document.createElement("a-sphere");
-    p.setAttribute("radius","0.005");
-    p.setAttribute("color","#0ff");
-    const x=(Math.random()-0.5)*2, y=(Math.random()-0.5)*2, z=(Math.random()-0.5)*2;
-    p.setAttribute("position",`${x} ${y} ${z}`);
-    p.setAttribute("animation",`property: position; to:0 0 0; dur:3000; easing:easeInQuad`);
-    root.appendChild(p);
+  function addEntity(tag, attrs = {}) {
+    const el = document.createElement(tag);
+    Object.entries(attrs).forEach(([key,value]) => el.setAttribute(key,String(value)));
+    root.appendChild(el);
+    return el;
   }
-}
-
-function birth(){
-  // ACT III — Birth
-  for(let i=0;i<200;i++){
-    const p=document.createElement("a-sphere");
-    p.setAttribute("radius","0.005");
-    p.setAttribute("color","#fff");
-    const x=(Math.random()-0.5)*3, y=(Math.random()-0.5)*3, z=(Math.random()-0.5)*3;
-    p.setAttribute("position","0 0 0");
-    p.setAttribute("animation",`property: position; to:${x} ${y} ${z}; dur:2000; easing:easeOutQuad;`);
-    root.appendChild(p);
+  function clearSequence() {
+    if (sequenceTimer !== null) window.clearTimeout(sequenceTimer);
+    sequenceTimer = null;
+    sequenceRunning = false;
+    sequenceIndex = 0;
+    if (root) {
+      root.innerHTML = '';
+      root.removeAttribute('animation__pulse');
+      root.removeAttribute('animation__rotate');
+      root.setAttribute('scale','1 1 1');
+      root.setAttribute('rotation','0 0 0');
+    }
+    if (introVideo) {
+      introVideo.pause();
+      try { introVideo.currentTime = 0; } catch (_) {}
+    }
   }
-}
-
-function orderEmerges(){
-  // ACT IV — Order Emerges
-  // Example: connect particles into lines
-  const line=document.createElement("a-cylinder");
-  line.setAttribute("color","#0ff");
-  line.setAttribute("radius","0.002");
-  line.setAttribute("height","1");
-  line.setAttribute("position","0 0 0.5");
-  root.appendChild(line);
-}
-
-function consciousness(){
-  // ACT V — Consciousness
-  root.setAttribute("animation__pulse","property: scale; dir: alternate; dur:2000; loop:true; to:1.05 1.05 1.05");
-}
-
-function rotation(){
-  // ACT VI — Rotation
-  root.setAttribute("animation__rotate","property: rotation; to:360 360 360; loop:true; dur:60000");
-}
-
-function metamorphosis(){
-  // ACT VII — Metamorphosis
-  const cube=document.createElement("a-box");
-  cube.setAttribute("depth","0.5");
-  cube.setAttribute("height","0.5");
-  cube.setAttribute("width","0.5");
-  cube.setAttribute("material","wireframe:true; color:#0ff");
-  root.appendChild(cube);
-  // unfolding would be scripted with custom component
-}
-
-function portal(){
-  // ACT VIII — Portal
-  for(let i=0;i<5;i++){
-    const ring=document.createElement("a-ring");
-    ring.setAttribute("radius-inner",0.2+i*0.05);
-    ring.setAttribute("radius-outer",0.25+i*0.05);
-    ring.setAttribute("color","#0ff");
-    ring.setAttribute("rotation",`0 ${i*45} 0`);
-    ring.setAttribute("animation",`property: rotation; to:0 360 0; loop:true; dur:${10000+i*2000}`);
-    root.appendChild(ring);
+  function recognition() {
+    const pulse = addEntity('a-ring', {
+      'radius-inner':.25,'radius-outer':.29,'position':'0 .1 .05',
+      'material':'color:#4ec9d4;emissive:#168b9b;emissiveIntensity:1;side:double',
+      'animation':'property:scale;from:.1 .1 .1;to:2.2 2.2 2.2;dur:1400;easing:easeOutQuad'
+    });
+    addEntity('a-sphere', {
+      'radius':.09,'position':'0 .1 .1',
+      'material':'color:#ffffff;emissive:#4ec9d4;emissiveIntensity:1.2',
+      'animation':'property:scale;dir:alternate;to:1.8 1.8 1.8;dur:500;loop:4'
+    });
+    status.textContent = 'Marker recognised — building the scene.';
   }
-}
-
-function information(){
-  // ACT IX — Information
-  const text=document.createElement("a-text");
-  text.setAttribute("value","Tony");
-  text.setAttribute("align","center");
-  text.setAttribute("color","#fff");
-  text.setAttribute("position","0 0.5 0");
-  text.setAttribute("animation","property: opacity; from:0; to:1; dur:4000");
-  root.appendChild(text);
-}
-
-function invitation(){
-  // ACT X — Invitation
-  console.log("Spatial Computing isn't about placing objects in reality. It's about revealing what reality can become.");
-}
-
-// Stage array
-const stages=[
-  recognition,
-  singularity,
-  birth,
-  orderEmerges,
-  consciousness,
-  rotation,
-  metamorphosis,
-  portal,
-  information,
-  invitation
-];
-
-function runGenesis(){
-  let i=0;
-  function next(){
-    stages[i++]();
-    if(i<stages.length) setTimeout(next,5000);
+  function singularity() {
+    addEntity('a-sphere', {'radius':.055,'position':'0 .35 .12','material':'color:#ffffff;emissive:#4ec9d4;emissiveIntensity:1.3'});
+    for(let i=0;i<24;i++){
+      const a=(i/24)*Math.PI*2, r=.75+Math.random()*.4, y=(Math.random()-.5)*1.1;
+      addEntity('a-sphere', {
+        'radius':.018,'color':'#4ec9d4','position':`${Math.cos(a)*r} ${y} ${Math.sin(a)*r}`,
+        'animation':`property:position;to:0 .35 .12;dur:${1400+Math.floor(Math.random()*900)};easing:easeInQuad`
+      });
+    }
   }
-  next();
-}
+  function birth() {
+    for(let i=0;i<72;i++){
+      const x=(Math.random()-.5)*2.5,y=.2+Math.random()*1.8,z=(Math.random()-.5)*.8;
+      addEntity('a-sphere', {
+        'radius':.012+Math.random()*.012,'color':i%8===0?'#c8a45c':'#ffffff',
+        'position':'0 .35 .12',
+        'animation':`property:position;to:${x} ${y} ${z};dur:${1200+Math.floor(Math.random()*1200)};easing:easeOutQuad`
+      });
+    }
+  }
+  function orderEmerges() {
+    for(let i=0;i<9;i++){
+      const x=(i-4)*.28;
+      addEntity('a-cylinder', {'radius':.006,'height':1.7,'position':`${x} .9 -.15`,'rotation':'0 0 90','material':'color:#4ec9d4;emissive:#0c6470;emissiveIntensity:.8;transparent:true;opacity:.6'});
+    }
+    addEntity('a-box', {'width':.85,'height':.85,'depth':.85,'position':'0 .8 -.1','material':'color:#071421;wireframe:true;emissive:#4ec9d4;emissiveIntensity:.7','animation':'property:rotation;to:0 360 360;dur:7000;loop:true;easing:linear'});
+  }
+  function consciousness() {
+    root.setAttribute('animation__pulse','property:scale;dir:alternate;dur:1600;loop:2;to:1.04 1.04 1.04');
+    addEntity('a-text', {'value':'SYSTEMS CONNECTED','align':'center','color':'#4ec9d4','width':3.2,'position':'0 2.1 .05'});
+  }
+  function rotation() {
+    root.setAttribute('animation__rotate','property:rotation;to:0 360 0;dur:12000;loop:true;easing:linear');
+  }
+  function metamorphosis() {
+    for(let i=0;i<3;i++){
+      addEntity('a-torus', {'radius':.42+i*.22,'radius-tubular':.012,'position':'0 .9 .05','rotation':`${i*35} ${i*55} 0`,'material':`color:${i===1?'#c8a45c':'#4ec9d4'};emissive:#0c6470;emissiveIntensity:.9`,'animation':`property:rotation;to:${i*35} ${360+i*55} 360;dur:${8000+i*1800};loop:true;easing:linear`});
+    }
+  }
+  function portal() {
+    for(let i=0;i<5;i++){
+      addEntity('a-ring', {'radius-inner':.3+i*.13,'radius-outer':.32+i*.13,'position':`0 .9 ${-.15-i*.025}`,'material':'color:#4ec9d4;emissive:#168b9b;emissiveIntensity:.9;side:double','animation':`property:rotation;to:0 ${360+i*45} 0;dur:${8000+i*1200};loop:true;easing:linear`});
+    }
+  }
+  function information() {
+    addEntity('a-text', {'value':'TONY NGOEPE','align':'center','color':'#ffffff','width':3.2,'position':'0 1.1 .42'});
+    addEntity('a-text', {'value':'SOFTWARE  /  SECURITY  /  SYSTEMS','align':'center','color':'#4ec9d4','width':2.8,'position':'0 .82 .42'});
+  }
+  function invitation() {
+    addEntity('a-text', {'value':'EXPLORE THE WORK','align':'center','color':'#c8a45c','width':2.8,'position':'0 .45 .42'});
+    status.textContent = 'Sequence complete — move the marker away and back to replay.';
+  }
 
-// Trigger on marker detection
-const marker=document.querySelector("#markerA");
-marker.addEventListener("markerFound",()=>{
-  runGenesis();
-});
+  const stages=[recognition,singularity,birth,orderEmerges,consciousness,rotation,metamorphosis,portal,information,invitation];
+  function runSequence() {
+    if(sequenceRunning) return;
+    clearSequence();
+    sequenceRunning=true;
+    const next=()=>{
+      if(!sequenceRunning || sequenceIndex>=stages.length){sequenceRunning=false;sequenceTimer=null;return;}
+      const current=stages[sequenceIndex++];
+      try { current(); } catch(error) { console.error('AR stage failed:',error); status.textContent='A scene stage failed. Move the marker away and try again.'; }
+      if(sequenceRunning && sequenceIndex<stages.length) sequenceTimer=window.setTimeout(next,2200);
+      else { sequenceRunning=false; sequenceTimer=null; }
+    };
+    next();
+    if(introVideo) introVideo.play().catch(()=>{});
+  }
+  function mountScene() {
+    if(scene) return;
+    scene=document.createElement('a-scene');
+    scene.setAttribute('embedded','');
+    scene.setAttribute('renderer','antialias:true; colorManagement:true');
+    scene.setAttribute('arjs','trackingMethod:best; sourceType:webcam; debugUIEnabled:false');
+    scene.innerHTML=`
+      <a-assets>
+        <video id="introVideo" src="https://hak3du.github.io/portfolio/intro.mp4" preload="auto" loop muted playsinline crossorigin="anonymous"></video>
+      </a-assets>
+      <a-marker id="markerA" type="pattern" url="assets/marker.patt">
+        <a-entity id="intro-panel" position="0 1.35 .03">
+          <a-plane width="1.85" height="1.12" material="color:#06111e;opacity:.9;transparent:true;side:double"></a-plane>
+          <a-video src="#introVideo" width="1.56" height=".64" position="0 .12 .025" material="shader:flat;side:double"></a-video>
+          <a-text value="TONY NGOEPE" align="center" color="#ffffff" width="2.2" position="0 -.36 .03"></a-text>
+          <a-text value="SOFTWARE  /  SECURITY  /  SYSTEMS" align="center" color="#4ec9d4" width="2" position="0 -.49 .03"></a-text>
+        </a-entity>
+        <a-entity id="stageRoot"></a-entity>
+      </a-marker>
+      <a-entity camera></a-entity>
+      <a-light type="ambient" intensity="1.5"></a-light>
+      <a-light type="directional" intensity="1.4" position="2 5 3"></a-light>
+    `;
+    stage.appendChild(scene);
+    marker=scene.querySelector('#markerA');
+    root=scene.querySelector('#stageRoot');
+    introVideo=scene.querySelector('#introVideo');
+    marker.addEventListener('markerFound',()=>{
+      status.textContent='Marker found — running the spatial sequence.';
+      runSequence();
+    });
+    marker.addEventListener('markerLost',()=>{
+      clearSequence();
+      status.textContent='Marker lost — point the camera at the pattern to resume.';
+    });
+    scene.addEventListener('camera-error',()=>{
+      status.textContent='Camera could not start. Check browser permission and HTTPS, or use the camera-free preview.';
+      launch.disabled=false;
+      launch.textContent='Retry AR camera';
+    });
+    scene.addEventListener('camera-init',()=>{
+      status.textContent='Camera ready — point it at the printed pattern marker.';
+    });
+    launch.disabled=true;
+    launch.textContent='Starting camera…';
+    status.textContent='Starting AR. Allow camera access if your browser asks.';
+    setTimeout(()=>{
+      if(status.textContent==='Starting AR. Allow camera access if your browser asks.'){
+        status.textContent='Waiting for camera. If it stays blank, check permission or use the desktop preview.';
+        launch.disabled=false;
+        launch.textContent='Retry AR camera';
+      } else {
+        launch.textContent='AR camera active';
+      }
+    },8000);
+  }
+  launch.addEventListener('click',mountScene);
+})();
 </script>
-
 </body>
 </html>
